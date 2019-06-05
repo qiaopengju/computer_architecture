@@ -38,6 +38,10 @@ module Regfile(rna,rnb,d,wn,we,clk,clrn,qa,qb
 		  register[5'h02]<=32'h00000002;
 		  register[5'h03]<=32'h00000003;
 		  register[5'h04]<=32'h00000004;		  
+		  register[5'h05]<=32'h00000005;
+		  register[5'h06]<=32'h00000006;
+		  register[5'h07]<=32'h00000007;
+		  register[5'h08]<=32'h00000008;		  
 		  
 		  end
 		  else if((wn!=0)&&we)

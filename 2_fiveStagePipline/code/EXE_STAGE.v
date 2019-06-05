@@ -18,13 +18,27 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module EXE_STAGE(ealuc,ealuimm,ea,eb,eimm,eshift,ealu,z
+module EXE_STAGE(ealuc,ealuimm,ea,eb,eimm,eshift,ealu,z,
+        exe_wreg, mem_wreg, clk, clrn, exe_d, mem_d, exe_m2reg, 
+        mem_m2reg, exe_wmem, mem_wmem, S, MEM_Alu
     );
+    input clk, clrn;
 	 input [31:0] ea,eb,eimm;		//ea-由寄存器读出的操作数a；eb-由寄存器读出的操作数b；eimm-经过扩展的立即数；
 	 input [2:0] ealuc;		//ALU控制码
 	 input ealuimm,eshift;		//ALU输入操作数的多路选择器
+     input exe_wreg;
+     input [4:0] exe_d;
+     input exe_m2reg;
+     input exe_wmem;
+
 	 output [31:0] ealu;		//alu操作输出
 	 output z;
+     output mem_wreg;
+     output [4:0] mem_d;
+     output mem_m2reg;
+     output mem_wmem;
+     output [31:0] S;
+     output [31:0] MEM_Alu;
 	 
 	 wire [31:0] alua,alub,sa;
 
@@ -34,4 +48,10 @@ module EXE_STAGE(ealuc,ealuimm,ea,eb,eimm,eshift,ealu,z
 	 mux32_2_1 alu_inb (eb,eimm,ealuimm,alub);//选择ALU b端的数据来源
  	 alu al_unit (alua,alub,ealuc,ealu,z);//ALU
 	 
+    dff1 wreg2mem(exe_wreg, clk, clrn, mem_wreg);
+    dff5 d2mem(exe_d, clk, clrn, mem_d);
+    dff1 m2reg2mem(exe_m2reg, clk, clrn, mem_m2reg);
+    dff1 wmem2mem(exe_wmem, clk, clrn, mem_wmem);
+    dff32 rb2mem(eb, clk, clrn, S);
+    dff32 alu2mem(ealu, clk, clrn, MEM_Alu);
 endmodule

@@ -19,25 +19,34 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module ID_STAGE(pc4,inst,
-              wdi,clk,clrn,bpc,jpc,pcsource,
-				  m2reg,wmem,aluc,aluimm,a,b,imm,
-				  shift,rsrtequ
+              clk,clrn,bpc,jpc,pcsource,
+				  exe_aluc,exe_aluimm,a,b,exe_imm,
+				  exe_shift,rsrtequ,
+                  exe_wreg, exe_d, exe_m2reg, exe_wmem
     );
-	 input [31:0] pc4,inst,wdi;		//pc4-PC值用于计算jpc；inst-读取的指令；wdi-向寄存器写入的数据
+	 input [31:0] pc4,inst;		//pc4-PC值用于计算jpc；inst-读取的指令；wdi-向寄存器写入的数据
 	 input clk,clrn;		//clk-时钟信号；clrn-复位信号；
 	 input rsrtequ;		//branch控制信号, 取决于zf
-	 output [31:0] bpc,jpc,a,b,imm;		//bpc-branch_pc；jpc-jump_pc；a-寄存器操作数a；b-寄存器操作数b；imm-立即数操作数
-	 output [2:0] aluc;		//ALU控制信号
+	 output [31:0] bpc,jpc,a,b,exe_imm;		//bpc-branch_pc；jpc-jump_pc；a-寄存器操作数a；b-寄存器操作数b；imm-立即数操作数
+	 output [2:0] exe_aluc;		//ALU控制信号
 	 output [1:0] pcsource;		//下一条指令地址选择
-	 output m2reg,wmem,aluimm,shift;		
+	 output wmem,exe_aluimm,exe_shift;		
+     output exe_wreg;
+     output [4:0] exe_d;
+     output exe_m2reg, exe_wmem;
 	 
+     wire wmem;
 	 wire wreg;
+     wire shift;
+	 wire [2:0] aluc;		//ALU控制信号
 	 wire [4:0] rn;		//写回寄存器号
 	 wire [5:0] op,func;
 	 wire [4:0] rs,rt,rd;
 	 wire [31:0] qa,qb,br_offset;
+	 wire [31:0] imm;
 	 wire [15:0] ext16;
 	 wire regrt,sext,e;
+     wire m2reg;
 	 
 	 assign func=inst[25:20];  
 	 assign op=inst[31:26];
@@ -48,11 +57,9 @@ module ID_STAGE(pc4,inst,
 	             op,wreg,m2reg,wmem,aluc,regrt,aluimm,
 					 sext,pcsource,shift);
 			 
-    Regfile rf (rs,rt,wdi,rn,wreg,~clk,clrn,qa,qb);//寄存器堆，有32个32位的寄存器，0号寄存器恒为0
+    //Regfile rf (rs,rt,wdi,rn,wreg,~clk,clrn,qa,qb);//寄存器堆，有32个32位的寄存器，0号寄存器恒为0
     mux5_2_1 des_reg_num (rd,rt,regrt,rn); //选择目的寄存器是来自于rd,还是rt
 
-    assign a=qa;
-    assign b=qb;
 
     assign e=sext&inst[25];//符号拓展或0拓展
     assign ext16={16{e}};//符号拓展
@@ -62,4 +69,14 @@ module ID_STAGE(pc4,inst,
     add32 br_addr (pc4,br_offset,bpc);		//beq,bne指令的目标地址的计算
     assign jpc={pc4[31:28],inst[25:0],2'b00};		//jump指令的目标地址的计算
 	 
+    dff1 wreg2exe(wreg, clk, clrn, exe_wreg);
+    dff5 d2exe(rn, clk, clrn, exe_d);
+    dff1 m2reg2exe(m2reg, clk, clrn, exe_m2reg);
+    dff1 wmem2exe(wmem, clk, clrn, exe_wmem);
+    dff3 aluc2exe(aluc, clk, clrn, exe_aluc);
+    dff1 aluimm2exe(aluimm, clk, clrn, exe_aluimm);
+    dff32 a2exe(qa, clk , clrn, a);
+    dff32 b2exe(qb, clk , clrn, b);
+    dff32 imm2exe(imm, clk , clrn, exe_imm);
+    dff1 shift2exe(shift, clk, clrn, exe_shift);
 endmodule
