@@ -35,7 +35,7 @@ module IF_STAGE(clk,clrn,pcsource,bpc,jpc,if_pc4,id_pc4,if_inst,id_inst,PC
 	 Inst_ROM inst_mem(pc,if_inst); //指令存储器; 通过pc取指令
 	 
 	 assign PC=pc;
-     dff32 pc2id(if_pc4, clk, clrn, id_pc4);
-     dff32 inst2id(if_inst, clk, clrn, id_inst);
+     dff32 pc2id(if_pc4, clk, clrn, id_pc4);        //时钟上升沿将pc4传给ID级
+     dff32 inst2id(if_inst, clk, clrn, id_inst);    //时钟上升沿将inst传给ID级
 	 
 endmodule

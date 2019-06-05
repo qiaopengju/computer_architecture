@@ -24,12 +24,12 @@ module Inst_ROM(a,inst
 	 wire [31:0] rom [0:63];
 	 
 	 assign rom[6'h00]=32'h00000000;
-	 assign rom[6'h01]=32'h00101464;		//add r5,r3,r4  r5=0x00000007
-	 assign rom[6'h02]=32'h28003826;		//ori r6,r1,0x000e  r6=0x0000000f
-	 assign rom[6'h03]=32'h38000c46;		//store r6,0x0003(r2)  m5=0x0000000f
-	 assign rom[6'h04]=32'h34000867;		//load r7,0x0002(r3)  r7=0x0000000f
-	 assign rom[6'h05]=32'h3ffff0e8;		//beq r7,r8,6'h02  offset=0xfffc
-	 assign rom[6'h06]=32'h48000001;		//jump 0x0000001
+	 assign rom[6'h01]=32'b00010100000000000001000000100001;//addi r1, r1, 0x0004, r1=5
+	 assign rom[6'h02]=32'b00110100000000000001000001100010;//load r2, 0x0004(r3), r2=7
+	 assign rom[6'h03]=32'b00000100001000000001000010100110;//or r4, r5, r6
+	 assign rom[6'h04]=32'b00000000000100000000110010100110;//add r3, r5, r6, r3=11
+	 assign rom[6'h05]=32'b00111000000000000000100011101000;//store r8, 0x0002(r7)
+	 assign rom[6'h06]=32'b00001000001000010010010000000111;//srl r9, r7, 0x02
 	 assign rom[6'h07]=32'h00000000;
 	 assign rom[6'h08]=32'h00000000;
 	 assign rom[6'h09]=32'h00000000;

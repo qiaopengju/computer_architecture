@@ -1,3 +1,4 @@
-PPCPU: code/*.v makefile 
-	iverilog -o PPCPU code/*.v
+PPCPU: code/*.v makefile testBench/*.v
+	iverilog -o PPCPU code/*.v testBench/*.v
 	vvp PPCPU 
+	open PPCPU.vcd

@@ -39,7 +39,7 @@ module ID_STAGE(pc4,inst,
 	 wire wreg;
      wire shift;
 	 wire [2:0] aluc;		//ALU控制信号
-	 wire [4:0] rn;		//写回寄存器号
+	 wire [4:0] rn;         //写回寄存器号
 	 wire [5:0] op,func;
 	 wire [4:0] rs,rt,rd;
 	 wire [31:0] qa,qb,br_offset;
@@ -53,22 +53,22 @@ module ID_STAGE(pc4,inst,
 	 assign rs=inst[9:5];
 	 assign rt=inst[4:0];
 	 assign rd=inst[14:10];
-	 Control_Unit cu(rsrtequ,func,                          //控制部件
-	             op,wreg,m2reg,wmem,aluc,regrt,aluimm,
-					 sext,pcsource,shift);
+	 Control_Unit cu(rsrtequ,func,op,wreg,m2reg,wmem,aluc,regrt,aluimm,
+					 sext,pcsource,shift); //控制部件，用于求控制信号
 			 
-    //Regfile rf (rs,rt,wdi,rn,wreg,~clk,clrn,qa,qb);//寄存器堆，有32个32位的寄存器，0号寄存器恒为0
     mux5_2_1 des_reg_num (rd,rt,regrt,rn); //选择目的寄存器是来自于rd,还是rt
+    Regfile rf (rs,rt,0,rn,1'b0,~clk,clrn,qa,qb);//ID级只读寄存器不写寄存器
 
 
     assign e=sext&inst[25];//符号拓展或0拓展
     assign ext16={16{e}};//符号拓展
-    assign imm={ext16,inst[25:10]};		//将立即数进行符号拓展
+    assign imm={ext16,inst[25:10]};         //将立即数进行符号拓展
 
     assign br_offset={imm[29:0],2'b00};		//计算偏移地址
     add32 br_addr (pc4,br_offset,bpc);		//beq,bne指令的目标地址的计算
     assign jpc={pc4[31:28],inst[25:0],2'b00};		//jump指令的目标地址的计算
 	 
+    /*将之后所有级需要用到的控制信号都在下一个时钟上升沿传递下去*/
     dff1 wreg2exe(wreg, clk, clrn, exe_wreg);
     dff5 d2exe(rn, clk, clrn, exe_d);
     dff1 m2reg2exe(m2reg, clk, clrn, exe_m2reg);
