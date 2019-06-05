@@ -1,11 +1,10 @@
-`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
 // 
-// Create Date:    10:43:26 05/16/2019 
+// Create Date:    18:40:58 05/15/2019 
 // Design Name: 
-// Module Name:    WB_STAGE 
+// Module Name:    dff32 
 // Project Name: 
 // Target Devices: 
 // Tool versions: 
@@ -18,13 +17,19 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module WB_STAGE(r_alu,m_o,m2reg,wdi
+module dff32(d,clk,clrn,q
     );
-	 input [31:0] r_alu;
-	 input [31:0] m_o;
-	 input m2reg;
-	 output [31:0] wdi;
-	 
-	 mux32_2_1 wb_stage (r_alu, m_o, m2reg, wdi);
-
+	 input [31:0] d;
+	 input clk,clrn;
+	 output [31:0] q;
+    reg [31:0] q;
+    always @ (negedge clrn or posedge clk) //clrn下降沿或clk上升沿触发，若clrn=0，清零，否则q<=d
+	 if(clrn==0)
+	     begin
+		      q<=0;
+		  end
+    else	
+        begin		      
+		      q<=d;
+		  end	 
 endmodule

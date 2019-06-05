@@ -25,6 +25,14 @@ module Control_Unit(rsrtequ,func,
 	 input rsrtequ; 		//判断ALU输出结果是否为0：if(r=0)rsrtequ=1；
 	 input [5:0] func,op;		//指令中相应控制码字段
 	 output wreg,m2reg,wmem,regrt,aluimm,sext,shift;
+     /*
+     * wreg:寄存器写信号
+     * m2reg:为1，将存储器内容写入reg，否则将ALU结果写入寄存器
+     * wmem:是否写memory
+     * regrt:1:rt/0:rd
+     * aluimm:alub是否为imm
+     * sext:为1是符号扩展
+     */
 	 output [2:0] aluc;		//ALU控制码
 	 output [1:0] pcsource;		//PC多路选择器控制码
 	 
@@ -72,7 +80,7 @@ module Control_Unit(rsrtequ,func,
  	 assign sext=i_addi|i_lw|i_sw|i_beq|i_bne;//为1时符号拓展，否则零拓展
  	 assign wmem=i_sw;//存储器写信号：为1时写存储器，否则不写
 
-	always @(*/*op or func*/)
+	always @(*)
 		case (op)
 			6'b000000: begin aluc<=3'b000; pcsource<=2'b00; end		//+; pc=pc+4
 			6'b000001: 
