@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module WB_STAGE(clk,clrn,r_alu,m_o,m2reg,
-        wb_wreg,wb_d
+        wb_wreg,wb_d,wdi
     );
     input clk, clrn;
 	input [31:0] r_alu; //ALU result
@@ -28,10 +28,9 @@ module WB_STAGE(clk,clrn,r_alu,m_o,m2reg,
 	input m2reg;
     input wb_wreg;
 
-	wire [31:0] wdi;
-    wire [31:0] tmp;
+	output [31:0] wdi;
 	
 	mux32_2_1 wb_stage (r_alu, m_o, m2reg, wdi);
-    Regfile rf (5'h0,5'h0,wdi,wb_d,wb_wreg,~clk,clrn,tmp,tmp);//wreg=1时回写register
+    //Regfile rf (5'h0,5'h0,wdi,wb_d,wb_wreg,~clk,clrn,tmp,tmp);//wreg=1时回写register
 
 endmodule

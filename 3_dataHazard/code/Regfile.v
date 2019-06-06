@@ -45,5 +45,5 @@ module Regfile(rna,rnb,d,wn,we,clk,clrn,qa,qb
 		  
 		  end
 		  else if((wn!=0)&&we)
-		     register[wn]<=d;
+		     register[wn]=d;
 endmodule

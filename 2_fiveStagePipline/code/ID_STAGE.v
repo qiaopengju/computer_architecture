@@ -22,11 +22,15 @@ module ID_STAGE(pc4,inst,
               clk,clrn,bpc,jpc,pcsource,
 				  exe_aluc,exe_aluimm,a,b,exe_imm,
 				  exe_shift,rsrtequ,
-                  exe_wreg, exe_d, exe_m2reg, exe_wmem
+                  exe_wreg, exe_d, exe_m2reg, exe_wmem, wb_d, wb_wreg, wdi
     );
 	 input [31:0] pc4,inst;		//pc4-PC值用于计算jpc；inst-读取的指令；wdi-向寄存器写入的数据
 	 input clk,clrn;		//clk-时钟信号；clrn-复位信号；
 	 input rsrtequ;		//branch控制信号, 取决于zf
+     input [4:0] wb_d;
+     input wb_wreg;
+     input [31:0] wdi;
+
 	 output [31:0] bpc,jpc,a,b,exe_imm;		//bpc-branch_pc；jpc-jump_pc；a-寄存器操作数a；b-寄存器操作数b；imm-立即数操作数
 	 output [2:0] exe_aluc;		//ALU控制信号
 	 output [1:0] pcsource;		//下一条指令地址选择
@@ -57,7 +61,7 @@ module ID_STAGE(pc4,inst,
 					 sext,pcsource,shift); //控制部件，用于求控制信号
 			 
     mux5_2_1 des_reg_num (rd,rt,regrt,rn); //选择目的寄存器是来自于rd,还是rt
-    Regfile rf (rs,rt,0,rn,1'b0,~clk,clrn,qa,qb);//ID级只读寄存器不写寄存器
+    Regfile rf (rs,rt,wdi,wb_d,wb_wreg,~clk,clrn,qa,qb);//ID级只读寄存器不写寄存器
 
 
     assign e=sext&inst[25];//符号拓展或0拓展

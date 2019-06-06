@@ -18,7 +18,7 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module MEM_STAGE(we,addr,MEM_Alu,clk,D,
+module MEM_STAGE(we,MEM_Alu,addr,clk,D,
         mem_wreg, wb_wreg, clrn, mem_d, wb_d, mem_m2reg, wb_m2reg, WB_Alu
     );
 	 input [31:0] MEM_Alu;
@@ -36,6 +36,7 @@ module MEM_STAGE(we,addr,MEM_Alu,clk,D,
      output [31:0] WB_Alu;
 
 	 wire [31:0] dataout;
+
 	 reg [31:0] ram [0:31];
 	 assign dataout=ram[addr[6:2]];		//读出常有效
 	 always @(posedge clk)begin

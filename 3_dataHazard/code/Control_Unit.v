@@ -20,11 +20,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 module Control_Unit(rsrtequ,func,
 	             op,wreg,m2reg,wmem,aluc,regrt,aluimm,
-					 sext,pcsource,shift
+					 sext,pcsource,shift,alu_type
     );
 	 input rsrtequ; 		//判断ALU输出结果是否为0：if(r=0)rsrtequ=1；
 	 input [5:0] func,op;		//指令中相应控制码字段
 	 output wreg,m2reg,wmem,regrt,aluimm,sext,shift;
+     output [14:0] alu_type;
      /*
      * wreg:寄存器写信号
      * m2reg:为1，将存储器内容写入reg，否则将ALU结果写入寄存器
@@ -80,6 +81,22 @@ module Control_Unit(rsrtequ,func,
  	 assign sext=i_addi|i_lw|i_sw|i_beq|i_bne;//为1时符号拓展，否则零拓展
  	 assign wmem=i_sw;//存储器写信号：为1时写存储器，否则不写
 
+     assign alu_type[0]=i_add;
+     assign alu_type[1]=i_and;
+     assign alu_type[2]=i_or;
+     assign alu_type[3]=i_xor;
+     assign alu_type[4]=i_srl;
+     assign alu_type[5]=i_sll;
+     assign alu_type[6]=i_addi;
+     assign alu_type[7]=i_andi;
+     assign alu_type[8]=i_ori;
+     assign alu_type[9]=i_xori;
+     assign alu_type[10]=i_lw;
+     assign alu_type[11]=i_sw;
+     assign alu_type[12]=i_beq;
+     assign alu_type[13]=i_bne;
+     assign alu_type[14]=i_j;
+
 	always @(*)
 		case (op)
 			6'b000000: begin aluc<=3'b000; pcsource<=2'b00; end		//+; pc=pc+4
@@ -105,5 +122,4 @@ module Control_Unit(rsrtequ,func,
 			6'b010000: begin aluc<=3'b110; if(!rsrtequ) pcsource<=2'b01; else pcsource<=2'b00; end		//beq; pc=bpc
 			6'b010010: pcsource<=2'b10;		//beq; pc=jpc
 		endcase
-
 endmodule
