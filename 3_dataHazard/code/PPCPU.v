@@ -59,7 +59,7 @@ module PPCPU(Clock, Resetn, PC, IF_Inst, ID_Inst, EXE_Alu, MEM_Alu, WB_Alu
 	 
 	 WB_STAGE stage5 (Clock, Resetn, WB_Alu, D, wb_m2reg, wb_wreg, wb_d, wdi);
 
-     dff32 d2NextD(D, Clock, Resetn, nextD);
+     dff32 d2NextD(D, Clock, Resetn, nextD);    //用于保存延时一个周期的D，用于load数据前推
 
 
 endmodule
