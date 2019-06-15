@@ -23,21 +23,16 @@ module Inst_ROM(a,inst
 	 output [31:0] inst;
 	 wire [31:0] rom [0:63];
 	 
-	 assign rom[6'h00]=32'h00000000;
+	 assign rom[6'h00]=32'h00000000;//nop
 	 assign rom[6'h01]=32'b00000000000100000000010001000011;//add r1, r2, r3;   r1=5
-	 assign rom[6'h02]=32'b00000000000100000000010000100001;//add r1, r1, r1;   r1=A
-	 assign rom[6'h03]=32'b00000100001000000001100011100001;//or r6, r7, r1;    r6=F
-	 assign rom[6'h04]=32'b00010100000000000010100000101000;//addi r8, r1, 0x000a;  r8=0x0014
-	 assign rom[6'h05]=32'b00110111111111111101010100000001;//load r1, 0xfff5(r8); addr=9, r1=2
-	 assign rom[6'h06]=32'b00001000001100010010010000000001;//sll, r9, r1, 0x02; r9=8
-	 assign rom[6'h07]=32'b00111000000000001001110000101001;//store r9, 0x0027(r1), result=29
-	 //assign rom[6'h02]=32'h00000000;
-	 //assign rom[6'h03]=32'h00000000;
-	 //assign rom[6'h04]=32'h00000000;
-	 //assign rom[6'h05]=32'h00000000;
-	 //assign rom[6'h06]=32'b00000000000100000000010000100001;//add r1, r1, r1;   r1=A
-	 assign rom[6'h08]=32'h00000000;
-	 assign rom[6'h09]=32'h00000000;
+	 assign rom[6'h02]=32'b00000100000100000001000000100101;//and r4, r1, r5;   r4=5
+	 assign rom[6'h03]=32'b00000100001000000001100011100001;//or r6, r7, r1;    r6=7
+	 assign rom[6'h04]=32'b00010100000000000010100000101000;//addi r8, r1, 0x000a;  r8=0x000F
+	 assign rom[6'h05]=32'b00110111111111111101010100000001;//load r1, 0xfff5(r8); r1=1, addr=alu_r=4 
+	 assign rom[6'h06]=32'b01000000000000000010100000101000;//bne r1, r8, 0x000A addr=(7+A)*4=0x44;
+	 assign rom[6'h07]=32'b00001000001100010010010000000001;//sll, r9, r1, 0x02; r9=4
+	 assign rom[6'h08]=32'b00111000000000001001110000101001;//store r9, 0x0027(r1), result=28
+	 assign rom[6'h09]=32'b01001000000000000000000000000100;//jump 0x4
 	 assign rom[6'h0A]=32'h00000000;
 	 assign rom[6'h0B]=32'h00000000;
 	 assign rom[6'h0C]=32'h00000000;
@@ -45,7 +40,7 @@ module Inst_ROM(a,inst
 	 assign rom[6'h0E]=32'h00000000;
 	 assign rom[6'h0F]=32'h00000000;
 	 assign rom[6'h10]=32'h00000000;
-	 assign rom[6'h11]=32'h00000000;
+	 assign rom[6'h11]=32'b01001000000000000000000000000111;
 	 assign rom[6'h12]=32'h00000000;
 	 assign rom[6'h13]=32'h00000000;
 	 assign rom[6'h14]=32'h00000000;

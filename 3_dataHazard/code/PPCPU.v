@@ -52,7 +52,7 @@ module PPCPU(Clock, Resetn, PC, IF_Inst, ID_Inst, EXE_Alu, MEM_Alu, WB_Alu
 	 EXE_STAGE stage3 (exe_aluc, exe_aluimm, exe_a, exe_b, exe_imm, exe_shift, EXE_Alu, z,
         exe_wreg, mem_wreg, Clock, Resetn, exe_d, mem_d, exe_m2reg, 
         mem_m2reg, exe_wmem, mem_wmem, S, MEM_Alu, mem_wreg, wb_wreg, mem_d, wb_d,
-        MEM_Alu, WB_Alu, exe_rs, exe_rt, wb_m2reg, nextD);
+        MEM_Alu, WB_Alu, exe_rs, exe_rt, wb_m2reg, nextD, wdi);
 	 
 	 MEM_STAGE stage4 (mem_wmem, MEM_Alu, S, Clock, D, mem_wreg, wb_wreg, Resetn,
          mem_d, wb_d, mem_m2reg, wb_m2reg, WB_Alu);

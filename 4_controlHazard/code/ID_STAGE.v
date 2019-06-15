@@ -19,12 +19,13 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module ID_STAGE(pc4,inst,
-              clk,clrn,bpc,jpc,pcsource,
+              clk,clrn,jpc,pcsource,
 				  exe_aluc,exe_aluimm,a,b,exe_imm,
 				  exe_shift,rsrtequ,
                   exe_wreg, exe_d, exe_m2reg, exe_wmem, load_depen, d,
                   exe_alu_type, exe_rs, exe_rt, exe_m2regIn, exe_wregIn,
-                  wdi, wb_d, wb_wreg
+                  wdi, wb_d, wb_wreg, btaken, id_condition_jmp, exe_condition_jmp,
+                  exe_condition_jmp_in, exe_beq, exe_bne, exe_beq_in, exe_bne_in, exe_bpc
     );
 	 input [31:0] pc4,inst;		//pc4-PC值用于计算jpc；inst-读取的指令；wdi-向寄存器写入的数据
 	 input clk,clrn;		//clk-时钟信号；clrn-复位信号；
@@ -34,17 +35,23 @@ module ID_STAGE(pc4,inst,
      input [31:0] wdi;
      input [4:0] wb_d;
      input wb_wreg;
+     input exe_condition_jmp_in;
+     input exe_beq_in, exe_bne_in;
 
-	 output [31:0] bpc,jpc,a,b,exe_imm;		//bpc-branch_pc；jpc-jump_pc；a-寄存器操作数a；b-寄存器操作数b；imm-立即数操作数
+	 output [31:0] exe_bpc,jpc,a,b,exe_imm;		//bpc-branch_pc；jpc-jump_pc；a-寄存器操作数a；b-寄存器操作数b；imm-立即数操作数
 	 output [2:0] exe_aluc;		//ALU控制信号
 	 output [1:0] pcsource;		//下一条指令地址选择
 	 output wmem,exe_aluimm,exe_shift;		
      output exe_wreg;
      output [4:0] exe_d;
      output exe_m2reg, exe_wmem;
-     output load_depen;
      output [14:0] exe_alu_type;
 	 output [4:0] exe_rs, exe_rt;
+     output load_depen;
+     output btaken;
+     output id_condition_jmp;     //条件跳转
+     output exe_condition_jmp;
+     output exe_beq, exe_bne;
 	 
      wire wmem;
 	 wire wreg;
@@ -62,6 +69,8 @@ module ID_STAGE(pc4,inst,
      wire [14:0] alu_type;
      wire idRs1IsReg, idRs2IsReg;
      wire dClk;
+     wire [1:0] tmp_pcsource;
+     wire [31:0] bpc;
 	 
 	 assign func=inst[25:20];  
 	 assign op=inst[31:26];
@@ -69,7 +78,7 @@ module ID_STAGE(pc4,inst,
 	 assign rt=inst[4:0];
 	 assign rd=inst[14:10];
 	 Control_Unit cu(rsrtequ,func,op,wreg,m2reg,wmem,aluc,regrt,aluimm,
-					 sext,pcsource,shift, alu_type); //控制部件，用于求控制信号
+					 sext,tmp_pcsource,shift, alu_type); //控制部件，用于求控制信号
 			 
     mux5_2_1 des_reg_num (rd,rt,regrt,rn); //选择目的寄存器是来自于rd,还是rt
     Regfile rf (rs,rt,wdi,wb_d,wb_wreg,~clk,clrn,qa,qb);//ID级只读寄存器不写寄存器
@@ -80,7 +89,8 @@ module ID_STAGE(pc4,inst,
     assign ext16={16{e}};//符号拓展
     assign imm={ext16,inst[25:10]};         //将立即数进行符号拓展
 
-    assign br_offset={imm[29:0],2'b00};		//计算偏移地址
+    //assign br_offset=/*{imm[29:0],2'b00}*/{16'h0000, inst[25:10]};		//计算偏移地址
+    assign br_offset={imm[29:0], 2'b00};
     assign jpc={pc4[31:28],inst[25:0],2'b00};		//jump指令的目标地址的计算
 
     assign idRs1IsReg =alu_type[0] | alu_type[1] | alu_type[2] |
@@ -90,9 +100,12 @@ module ID_STAGE(pc4,inst,
         alu_type[3] | alu_type[4] | alu_type[5]; 
 
 	 
-    assign load_depen = (rs==d & (exe_m2reg & exe_wreg) & idRs1IsReg) |
+    assign load_depen = (rs==d & (exe_m2reg & exe_wreg) & idRs1IsReg) | //判断load冒险
         (rt==d & (exe_m2reg & exe_wreg) & idRs2IsReg) |
         (rn==d & (exe_m2reg & exe_wreg));
+    assign btaken = alu_type[14] | (exe_beq_in&rsrtequ) | (exe_bne_in&~rsrtequ); //判断跳转
+    assign id_condition_jmp = alu_type[12] | alu_type[13]; //是否是条件跳转
+    assign pcsource = exe_condition_jmp_in ? 2'b01 : id_condition_jmp ? 2'b00 : tmp_pcsource;
 
     //assign dClk = (load_depen == 1) ? 1 : clk;
     assign dClk=clk;
@@ -110,4 +123,8 @@ module ID_STAGE(pc4,inst,
     dff15 alutype2exe(alu_type, dClk, clrn, exe_alu_type);
     dff5 rs2exe(rs, dClk, clrn, exe_rs);
     dff5 rt2exe(rt, dClk, clrn, exe_rt);
+    dff1 conditionJmp2exe(id_condition_jmp, dClk, clrn, exe_condition_jmp);
+    dff1 beq2exe(alu_type[12], dClk, clrn, exe_beq);
+    dff1 bne2exe(alu_type[13], dClk, clrn, exe_bne);
+    dff32 bpc2exe(bpc, dClk, clrn, exe_bpc);
 endmodule
