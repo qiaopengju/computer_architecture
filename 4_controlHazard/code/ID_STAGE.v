@@ -105,7 +105,7 @@ module ID_STAGE(pc4,inst,
         (rn==d & (exe_m2reg & exe_wreg));
     assign btaken = alu_type[14] | (exe_beq_in&rsrtequ) | (exe_bne_in&~rsrtequ); //判断跳转
     assign id_condition_jmp = alu_type[12] | alu_type[13]; //是否是条件跳转
-    assign pcsource = exe_condition_jmp_in ? 2'b01 : id_condition_jmp ? 2'b00 : tmp_pcsource;
+    assign pcsource = exe_condition_jmp_in&btaken ? 2'b01 : id_condition_jmp ? 2'b00 : tmp_pcsource;
 
     //assign dClk = (load_depen == 1) ? 1 : clk;
     assign dClk=clk;
